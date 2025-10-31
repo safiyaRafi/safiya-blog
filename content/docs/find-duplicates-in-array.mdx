@@ -1,0 +1,89 @@
+---
+title: "Find Duplicates in Array"
+slug: "find-duplicates-in-array"
+date: "2025-10-31"
+description: "Learn how to find duplicates in an array using simple and efficient techniques with clear examples and real-world use cases."
+tags:
+  - "Blind 75"
+  - "Array"
+  - "Hashing"
+  - "Python"
+  - "Algorithms"
+---
+
+# 🧠 Find Duplicates in Array
+
+Finding duplicates in an array is one of the most common coding interview questions.  
+It checks your understanding of **arrays**, **hashing**, and **time-space trade-offs**.
+
+---
+
+## 🔍 Problem Statement
+
+Given an integer array `nums`, return all elements that appear **more than once**.
+
+### Example
+```text
+Input: nums = [4,3,2,7,8,2,3,1]
+Output: [2,3]
+
+💡 Approach 1: Using Hash Set
+
+We can use a Set to keep track of numbers we've already seen.
+
+If the number is not in the set → add it.
+
+If it is already in the set → it’s a duplicate.
+
+Pseudocode
+create empty set seen
+create empty list duplicates
+
+for each num in nums:
+    if num in seen:
+        add num to duplicates
+    else:
+        add num to seen
+return duplicates
+
+🧩 Python Code
+def find_duplicates(nums):
+    seen = set()
+    duplicates = []
+    for num in nums:
+        if num in seen:
+            duplicates.append(num)
+        else:
+            seen.add(num)
+    return duplicates
+
+print(find_duplicates([4,3,2,7,8,2,3,1]))  # Output: [2, 3]
+
+⚙️ Approach 2: In-Place Swapping (O(1) Space)
+
+If we can modify the array, we can mark visited numbers by flipping their corresponding index value negative.
+
+def find_duplicates(nums):
+    duplicates = []
+    for num in nums:
+        index = abs(num) - 1
+        if nums[index] < 0:
+            duplicates.append(abs(num))
+        else:
+            nums[index] = -nums[index]
+    return duplicates
+
+print(find_duplicates([4,3,2,7,8,2,3,1]))  # Output: [2, 3]
+
+🌍 Real-World Example
+
+Imagine you’re building a task tracking app.
+You allow users to upload a list of task IDs from a CSV file.
+You need to check if the same task was added more than once.
+
+task_ids = [101, 204, 305, 204, 509, 101]
+duplicates = find_duplicates(task_ids)
+print("Duplicate Task IDs:", duplicates)
+# Output: Duplicate Task IDs: [204, 101]
+
+
