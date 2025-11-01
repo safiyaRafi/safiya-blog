@@ -1,0 +1,159 @@
+---
+title: "Find Missing Number in Sequence"
+slug: "find-missing-number-in-sequence"
+date: "2025-11-01"
+description: "Learn how to find the missing number in a sequence using simple math and XOR approaches with clear examples and real-world applications."
+tags:
+  - "Blind 75"
+  - "Array"
+  - "Math"
+  - "Bit Manipulation"
+  - "Python"
+  - "Algorithms"
+---
+
+# 🔢 Find Missing Number in Sequence
+
+This is a classic Blind 75 problem that tests how well you understand  
+**mathematical formulas** and **bit manipulation**.  
+You’re given a range of numbers, but one is missing — your task is to find it efficiently.
+
+---
+
+## 🔍 Problem Statement
+
+Given an array containing `n` distinct numbers taken from the range `[0, n]`,  
+find the **only number missing** from the array.
+
+### Example
+```
+
+Input: nums = [3, 0, 1]
+Output: 2
+
+```
+
+Explanation: Numbers from 0 to 3 should be `[0, 1, 2, 3]`,  
+but 2 is missing.
+
+---
+
+## 💡 Approach 1 — Using Sum Formula
+
+We know that the sum of numbers from `0` to `n` is:
+
+```
+
+sum = n * (n + 1) / 2
+
+```
+
+If we subtract the actual sum of the array from this total sum,  
+the result will be the **missing number**.
+
+### Steps
+1. Find the expected sum using the formula  
+2. Find the actual sum from the array  
+3. Subtract actual from expected → that’s the missing number
+
+### Python Code
+```
+
+def missing_number(nums):
+n = len(nums)
+total = n * (n + 1) // 2
+actual = sum(nums)
+return total - actual
+
+print(missing_number([3, 0, 1]))  # Output: 2
+
+```
+
+🧠 **Why this works:**  
+The total sum represents what the array *should* have.  
+Removing what it *actually* has leaves behind the missing piece.
+
+---
+
+## ⚙️ Approach 2 — Using XOR (Bit Manipulation)
+
+This approach doesn’t use extra space or big numbers — it’s based on XOR logic.
+
+### Key idea
+- XOR of two same numbers is 0  
+- XOR of 0 with any number is that number itself  
+
+So if we XOR all indices and all numbers in the array,  
+the missing number will remain as the final result.
+
+### Python Code
+```
+
+def missing_number(nums):
+n = len(nums)
+result = 0
+
+```
+for i in range(n + 1):
+    result ^= i
+
+for num in nums:
+    result ^= num
+
+return result
+```
+
+print(missing_number([9,6,4,2,3,5,7,0,1]))  # Output: 8
+
+```
+
+🧩 **Why this works:**  
+Every number that appears twice (once as index, once as value) cancels out —  
+the missing one doesn’t, so it’s left behind.
+
+---
+
+## 🌍 Real-World Example
+
+Imagine you’re managing an **order tracking system**.  
+Orders are numbered sequentially from `0` to `n`.  
+If one record is missing, you can detect which order ID was skipped.
+
+```
+
+orders = [0, 1, 3, 4, 5]
+print("Missing Order ID:", missing_number(orders))
+
+# Output: Missing Order ID: 2
+
+```
+
+This helps identify missing entries due to data loss or system errors.
+
+---
+
+## 🧭 Key Takeaways
+
+- ✅ **Sum Formula** → Simple, clean, works for small-to-medium numbers  
+- ✅ **XOR Method** → Memory efficient, handles large ranges safely  
+- 🧠 Used in systems where IDs or indexes are expected to be continuous  
+
+---
+
+## 🚀 Challenge for You
+
+Try modifying the problem where **two numbers** are missing  
+and see if you can adapt the logic to find both!
+
+---
+
+## 📚 Related Topics
+
+- Bit Manipulation  
+- Array Math  
+- Parity and XOR properties  
+- Data validation in ordered sequences  
+```
+
+---
+

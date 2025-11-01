@@ -2,7 +2,7 @@
 title: "Find Duplicates in Array"
 slug: "find-duplicates-in-array"
 date: "2025-10-31"
-description: "Learn how to find duplicates in an array using simple and efficient techniques with clear examples and real-world use cases."
+description: "Learn how to find duplicates in an array using simple and efficient techniques with examples, pseudocode, and real-world applications."
 tags:
   - "Blind 75"
   - "Array"
@@ -13,77 +13,152 @@ tags:
 
 # 🧠 Find Duplicates in Array
 
-Finding duplicates in an array is one of the most common coding interview questions.  
-It checks your understanding of **arrays**, **hashing**, and **time-space trade-offs**.
+This is one of the most popular **array problems** from the Blind 75 list.  
+It checks how well you can handle **repeated values** and understand **time-space trade-offs**.
 
 ---
 
 ## 🔍 Problem Statement
 
-Given an integer array `nums`, return all elements that appear **more than once**.
+Given an array of integers `nums`, return all numbers that appear **more than once**.
 
 ### Example
-```text
+```
+
 Input: nums = [4,3,2,7,8,2,3,1]
 Output: [2,3]
 
-💡 Approach 1: Using Hash Set
+```
 
-We can use a Set to keep track of numbers we've already seen.
+---
 
-If the number is not in the set → add it.
+## 💡 Approach 1 — Using a Set (Simple and Clear)
 
-If it is already in the set → it’s a duplicate.
+We can use a **set** to track which numbers have been seen before.
 
-Pseudocode
+### Steps
+1. Create an empty set `seen`
+2. Create an empty list `duplicates`
+3. Loop through each number in `nums`
+4. If it’s already in `seen`, add it to `duplicates`
+5. Otherwise, add it to `seen`
+
+### Pseudocode
+```
+
 create empty set seen
 create empty list duplicates
 
-for each num in nums:
-    if num in seen:
-        add num to duplicates
-    else:
-        add num to seen
+for num in nums:
+if num in seen:
+add num to duplicates
+else:
+add num to seen
+
 return duplicates
 
-🧩 Python Code
+```
+
+### Python Code
+```
+
 def find_duplicates(nums):
-    seen = set()
-    duplicates = []
-    for num in nums:
-        if num in seen:
-            duplicates.append(num)
-        else:
-            seen.add(num)
-    return duplicates
+seen = set()
+duplicates = []
+
+```
+for num in nums:
+    if num in seen:
+        duplicates.append(num)
+    else:
+        seen.add(num)
+
+return duplicates
+```
 
 print(find_duplicates([4,3,2,7,8,2,3,1]))  # Output: [2, 3]
 
-⚙️ Approach 2: In-Place Swapping (O(1) Space)
+```
 
-If we can modify the array, we can mark visited numbers by flipping their corresponding index value negative.
+---
+
+## ⚙️ Approach 2 — In-Place Method (O(1) Space)
+
+If modifying the array is allowed,  
+we can **mark visited numbers** by flipping their index value negative.
+
+### Steps
+1. Loop through each number  
+2. Use its absolute value to find the index  
+3. If that index value is already negative → it’s a duplicate  
+4. Otherwise, flip it to negative to mark as visited
+
+### Python Code
+```
 
 def find_duplicates(nums):
-    duplicates = []
-    for num in nums:
-        index = abs(num) - 1
-        if nums[index] < 0:
-            duplicates.append(abs(num))
-        else:
-            nums[index] = -nums[index]
-    return duplicates
+duplicates = []
+
+```
+for num in nums:
+    index = abs(num) - 1
+    if nums[index] < 0:
+        duplicates.append(abs(num))
+    else:
+        nums[index] = -nums[index]
+
+return duplicates
+```
 
 print(find_duplicates([4,3,2,7,8,2,3,1]))  # Output: [2, 3]
 
-🌍 Real-World Example
+```
 
-Imagine you’re building a task tracking app.
-You allow users to upload a list of task IDs from a CSV file.
-You need to check if the same task was added more than once.
+---
+
+## 🌍 Real-World Example
+
+Imagine a **task tracking app** where users upload a list of task IDs.  
+You need to check if any task ID appears more than once.
+
+```
 
 task_ids = [101, 204, 305, 204, 509, 101]
 duplicates = find_duplicates(task_ids)
 print("Duplicate Task IDs:", duplicates)
+
 # Output: Duplicate Task IDs: [204, 101]
 
+```
+
+This avoids duplicate entries and keeps your data clean.
+
+---
+
+## 🧭 Key Takeaways
+
+- ✅ Use **Set-based approach** for readability  
+- ✅ Use **In-place approach** for memory efficiency  
+- 🧠 Common real-world use cases:  
+  - Duplicate user sign-ups  
+  - Duplicate product listings  
+  - Repeated transaction IDs
+
+---
+
+## 🚀 Challenge for You
+
+Try solving this problem **without using extra space**  
+and explain why the **negative marking trick** works.
+
+---
+
+## 📚 Related Topics
+
+- Hashing in Python  
+- Array manipulation  
+- Time and space complexity optimization  
+```
+
+---
 
