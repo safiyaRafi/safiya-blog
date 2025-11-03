@@ -1,0 +1,168 @@
+---
+title: "K Closest Points to Origin"
+slug: "k-closest-points-to-origin"
+date: "2025-10-31"
+description: "Find the K closest points to the origin using simple sorting and heap methods with real-world examples."
+tags:
+  - "Blind 75"
+  - "Sorting"
+  - "Heap"
+  - "Geometry"
+---
+
+# K Closest Points to Origin
+
+This is a common algorithm problem from the Blind 75 list.  
+The goal is to find the **K points closest to the origin (0,0)** from a list of 2D points.
+
+---
+
+## 🧩 Problem Statement
+
+Given an array of points where each point is represented as `[x, y]`,  
+return the **K closest points** to the origin `(0, 0)`.
+
+**Example:**
+
+```
+
+Input: points = [[1,3], [-2,2]], K = 1
+Output: [[-2,2]]
+
+```
+
+**Explanation:**
+
+- Distance of (1,3) = √(1² + 3²) = √10  
+- Distance of (-2,2) = √(4 + 4) = √8  
+→ `(-2,2)` is closer.
+
+---
+
+## 🧠 Understanding the Concept
+
+To compare which point is closer to the origin, we use the **distance formula**:
+
+```
+
+Distance = √(x² + y²)
+
+```
+
+We can ignore the square root because it doesn’t affect the comparison.  
+So we simply use **x² + y²** for sorting or comparison.
+
+---
+
+## 💡 Approach 1 — Sorting (Simple and Clear)
+
+**Steps:**
+1. Calculate the distance for each point → `x² + y²`
+2. Sort the list based on this distance
+3. Take the first `K` points
+
+**Example:**
+
+```
+
+points = [[3,3], [5,-1], [-2,4]], K = 2
+
+Distances:
+(3,3) → 18
+(5,-1) → 26
+(-2,4) → 20
+
+After sorting → [[3,3], [-2,4], [5,-1]]
+Take first 2 → [[3,3], [-2,4]]
+
+````
+
+**Python Code:**
+
+```python
+def kClosest(points, K):
+    points.sort(key=lambda p: p[0]**2 + p[1]**2)
+    return points[:K]
+````
+
+**Time Complexity:** O(N log N)
+**Space Complexity:** O(1)
+
+---
+
+## ⚙️ Approach 2 — Using a Heap (Efficient for Large Data)
+
+Instead of sorting the entire list, we can use a **Max Heap** to store only K closest points.
+
+**Steps:**
+
+1. Push each point into a heap with negative distance
+2. If heap size > K, remove the farthest point
+3. Return the points left in the heap
+
+**Python Code:**
+
+```python
+import heapq
+
+def kClosest(points, K):
+    heap = []
+    for (x, y) in points:
+        distance = -(x*x + y*y)
+        heapq.heappush(heap, (distance, (x, y)))
+        if len(heap) > K:
+            heapq.heappop(heap)
+    return [point for (_, point) in heap]
+```
+
+**Time Complexity:** O(N log K)
+**Space Complexity:** O(K)
+
+---
+
+## 🌍 Real-World Example
+
+Think of a **delivery app** like Swiggy or Zomato.
+You want to find the **closest delivery riders** to a restaurant.
+
+Each rider’s location is a point `(x, y)`.
+We can use this algorithm to find the nearest riders.
+
+**Example:**
+
+```python
+riders = [[2,3], [5,1], [-1,-2], [3,3]]
+K = 2
+
+print(kClosest(riders, K))
+# Output: [[2,3], [-1,-2]]
+```
+
+This helps assign nearby riders quickly and reduce delivery time.
+
+---
+
+## 🧭 Key Takeaways
+
+* Use **x² + y²** instead of √(x² + y²)
+* Sorting is simpler for small datasets
+* Heap is better for large datasets
+* Used in delivery apps, maps, and navigation systems
+
+---
+
+## 📊 Summary Table
+
+| Approach | Time Complexity | Space Complexity | Best For       |
+| -------- | --------------- | ---------------- | -------------- |
+| Sorting  | O(N log N)      | O(1)             | Small datasets |
+| Heap     | O(N log K)      | O(K)             | Large datasets |
+
+---
+
+## 📚 Related Topics
+
+* Sorting by key in Python
+* Priority Queues (Heap)
+* Geometry in algorithms
+
