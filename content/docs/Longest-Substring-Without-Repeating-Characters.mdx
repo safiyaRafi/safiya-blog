@@ -1,0 +1,208 @@
+---
+title: "Longest Substring Without Repeating Characters"
+description: "A simple explanation and clean Python solution for this Blind 75 problem."
+date: "2025-11-03"
+---
+
+# 🧩 Longest Substring Without Repeating Characters
+
+You are given a string.  
+Find the **longest part (substring)** that has **no repeating characters**.
+
+---
+
+## 🔢 Example
+
+**Input:**
+```
+
+"abcabcbb"
+
+````
+
+| Substring | Has repeats? | Length |
+|------------|--------------|--------|
+| abc        | ✅ unique     | 3      |
+| abca       | ❌ repeats    | -      |
+| bca        | ✅ unique     | 3      |
+
+✅ **Longest substring = "abc"**  
+**Answer = 3**
+
+---
+
+## 💡 Real-World Example
+
+Imagine typing a password and checking the **longest part without repeated letters**,  
+since repeating ones make it weak.  
+
+Or in music, you might check the **longest streak of non-repeating notes** 🎵.
+
+---
+
+## ⚙️ Approaches
+
+### 🥇 Approach 1: Brute Force
+
+Try all substrings and check if all characters are unique.
+
+```python
+def longestSubstring(s):
+    longest = 0
+    for i in range(len(s)):
+        for j in range(i, len(s)):
+            part = s[i:j+1]
+            if len(set(part)) == len(part):  # all unique
+                longest = max(longest, len(part))
+    return longest
+````
+
+⏱ **Time:** O(n²)
+📦 **Space:** O(n)
+
+✅ Easy to understand
+❌ Slow for big strings
+
+---
+
+### 🥈 Approach 2: Sliding Window (Efficient ✅)
+
+Use two pointers — `left` and `right`.
+Expand `right`, shrink `left` when duplicates appear.
+
+```python
+def longestSubstring(s):
+    seen = set()
+    left = 0
+    longest = 0
+
+    for right in range(len(s)):
+        while s[right] in seen:
+            seen.remove(s[left])
+            left += 1
+        seen.add(s[right])
+        longest = max(longest, right - left + 1)
+    return longest
+```
+
+⏱ **Time:** O(n)
+📦 **Space:** O(n)
+
+✅ Fast and simple for large input
+✅ Common interview pattern
+
+---
+
+### 🥉 Approach 3: Using Dictionary (Index Map)
+
+Keep track of the last seen index for each character.
+
+```python
+def longestSubstring(s):
+    seen = {}
+    left = 0
+    longest = 0
+
+    for right, char in enumerate(s):
+        if char in seen and seen[char] >= left:
+            left = seen[char] + 1
+        seen[char] = right
+        longest = max(longest, right - left + 1)
+    return longest
+```
+
+⏱ **Time:** O(n)
+📦 **Space:** O(n)
+
+✅ Cleanest version
+✅ Most preferred for interviews
+
+---
+
+## 🧠 Real-Life Uses
+
+| Use Case             | Example                                |
+| -------------------- | -------------------------------------- |
+| 🔑 Password Strength | Check longest non-repeating characters |
+| 📱 Text Analysis     | Find unique letter streaks in input    |
+| 🕹 Game Logic        | Longest unique sequence of moves       |
+| 💬 Chat Apps         | Detect longest non-repeated pattern    |
+
+---
+
+## ⚠️ Drawbacks
+
+| Drawback                    | Explanation               |
+| --------------------------- | ------------------------- |
+| 🕒 Brute Force is slow      | Checks every substring    |
+| 💾 Uses memory              | Set/dict store characters |
+| 🧩 Works only on characters | Modify to support words   |
+
+---
+
+## 🔍 Example Dry Run
+
+**Input:** `"pwwkew"`
+
+| Step | Left | Right | Window               | Longest |
+| ---- | ---- | ----- | -------------------- | ------- |
+| 0    | 0    | 0     | "p"                  | 1       |
+| 1    | 0    | 1     | "pw"                 | 2       |
+| 2    | 0    | 2     | "pww" → ❌ duplicate  | 2       |
+| 3    | 1    | 3     | "wk"                 | 2       |
+| 4    | 1    | 4     | "wke"                | 3 ✅     |
+| 5    | 1    | 5     | "wkew" → ❌ duplicate | 3       |
+
+✅ **Final Answer = 3 ("wke")**
+
+---
+
+## 🧾 Summary Table
+
+| Approach             | Logic                           | Time  | Space | Notes           |
+| -------------------- | ------------------------------- | ----- | ----- | --------------- |
+| Brute Force          | Try all substrings              | O(n²) | O(n)  | Simple but slow |
+| Sliding Window (Set) | Move window & remove duplicates | O(n)  | O(n)  | Best balance    |
+| Index Map (Dict)     | Track last seen index           | O(n)  | O(n)  | Fastest ✅       |
+
+---
+
+## 💡 Key Takeaways
+
+* Use **sliding window** for “longest substring” or “subarray” problems.
+* Use a **set or dictionary** to track duplicates.
+* Practice dry runs to understand **window movement**.
+
+---
+
+## ✨ Real-World Analogy
+
+Imagine walking on tiles labeled with letters:
+
+```
+A - B - C - A - B - C - B - B
+```
+
+You keep walking until you step on a tile you’ve already seen.
+Then, step back and start again.
+The farthest you go without repeating = your answer.
+
+---
+
+## 🏁 Final Thought
+
+This problem helps you understand:
+
+* Sliding Window Technique 🚪
+* HashSets & HashMaps 💾
+* Thinking in “expand & shrink” windows
+
+Once you learn this, you can easily move to:
+
+* **Longest Subarray with Sum K**
+* **Longest Substring with at most K distinct characters**
+* **Minimum Window Substring**
+
+```
+
+---
