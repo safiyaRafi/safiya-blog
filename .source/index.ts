@@ -1,9 +1,10 @@
 // @ts-nocheck -- skip type checking
-import * as docs_4 from "../content/docs/_Intro.mdx?collection=docs"
-import * as docs_3 from "../content/docs/Longest-Substring-Without-Repeating-Characters.mdx?collection=docs"
-import * as docs_2 from "../content/docs/K-Closest-Points-to-Origin.mdx?collection=docs"
-import * as docs_1 from "../content/docs/find-missing-number-in-array.mdx?collection=docs"
-import * as docs_0 from "../content/docs/find-duplicates-in-array.mdx?collection=docs"
+import * as docs_5 from "../content/docs/_Intro.mdx?collection=docs"
+import * as docs_4 from "../content/docs/Longest-Substring-Without-Repeating-Characters.mdx?collection=docs"
+import * as docs_3 from "../content/docs/K-Closest-Points-to-Origin.mdx?collection=docs"
+import * as docs_2 from "../content/docs/find-missing-number-in-array.mdx?collection=docs"
+import * as docs_1 from "../content/docs/find-duplicates-in-array.mdx?collection=docs"
+import * as docs_0 from "../content/docs/3sum.mdx?collection=docs"
 import { _runtime } from "fumadocs-mdx/runtime/next"
 import * as _source from "../source.config"
-export const docs = _runtime.docs<typeof _source.docs>([{ info: {"path":"find-duplicates-in-array.mdx","fullPath":"content\\docs\\find-duplicates-in-array.mdx"}, data: docs_0 }, { info: {"path":"find-missing-number-in-array.mdx","fullPath":"content\\docs\\find-missing-number-in-array.mdx"}, data: docs_1 }, { info: {"path":"K-Closest-Points-to-Origin.mdx","fullPath":"content\\docs\\K-Closest-Points-to-Origin.mdx"}, data: docs_2 }, { info: {"path":"Longest-Substring-Without-Repeating-Characters.mdx","fullPath":"content\\docs\\Longest-Substring-Without-Repeating-Characters.mdx"}, data: docs_3 }, { info: {"path":"_Intro.mdx","fullPath":"content\\docs\\_Intro.mdx"}, data: docs_4 }], [])
+export const docs = _runtime.docs<typeof _source.docs>([{ info: {"path":"3sum.mdx","fullPath":"content\\docs\\3sum.mdx"}, data: docs_0 }, { info: {"path":"find-duplicates-in-array.mdx","fullPath":"content\\docs\\find-duplicates-in-array.mdx"}, data: docs_1 }, { info: {"path":"find-missing-number-in-array.mdx","fullPath":"content\\docs\\find-missing-number-in-array.mdx"}, data: docs_2 }, { info: {"path":"K-Closest-Points-to-Origin.mdx","fullPath":"content\\docs\\K-Closest-Points-to-Origin.mdx"}, data: docs_3 }, { info: {"path":"Longest-Substring-Without-Repeating-Characters.mdx","fullPath":"content\\docs\\Longest-Substring-Without-Repeating-Characters.mdx"}, data: docs_4 }, { info: {"path":"_Intro.mdx","fullPath":"content\\docs\\_Intro.mdx"}, data: docs_5 }], [])

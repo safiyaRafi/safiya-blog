@@ -1,0 +1,196 @@
+---
+title: "3Sum Problem — Finding Zero-Sum Triplets"
+description: "Understand the 3Sum problem with simple explanation, examples, and Python code solution."
+date: "2025-11-05"
+tags: ["Blind 75", "Two Pointers", "Array", "Sorting", "DSA"]
+---
+
+# 🧩 3Sum Problem — Finding Zero-Sum Triplets
+
+## 🧠 What is the 3Sum Problem?
+
+The **3Sum problem** is one of the most popular array problems in coding interviews.  
+The goal is simple:  
+
+> Find all unique triplets in an array that add up to **zero (0)**.
+
+You must make sure that the same triplet (like `[-1, 0, 1]`) is **not repeated**.
+
+---
+
+## 💡 Problem Statement
+
+Given an integer array `nums`, return **all unique triplets `[a, b, c]`** such that:
+
+```
+
+a + b + c == 0
+
+````
+
+and all values are taken from different indices in the array.
+
+---
+
+## 🏙 Real-World Example
+
+Imagine you’re building a **financial analysis tool**.
+
+You have a list of **daily profit/loss values**:
+- Negative numbers → losses  
+- Positive numbers → profits  
+
+Now, you want to find **three days** whose total **net effect is 0** — meaning the total profit and loss balance each other out.
+
+Example:  
+If the array is `[-1, 0, 1, 2, -1, -4]`,  
+then the days with `[-1, 0, 1]` or `[-1, -1, 2]` make the total profit/loss **zero**.
+
+---
+
+## 🧩 Example
+
+### Input:
+```python
+nums = [-1, 0, 1, 2, -1, -4]
+````
+
+### Output:
+
+```python
+[[-1, -1, 2], [-1, 0, 1]]
+```
+
+Explanation:
+
+* `(-1) + (-1) + 2 = 0`
+* `(-1) + 0 + 1 = 0`
+
+---
+
+## ⚙️ Approach — Sorting + Two Pointers
+
+We can solve this problem **efficiently** using the **two-pointer technique** after sorting.
+
+### Steps:
+
+1. **Sort** the array.
+2. Loop through each element `i` as the **first number**.
+3. Use two pointers:
+
+   * `left` starts right after `i`
+   * `right` starts at the end of the array
+4. Check the sum of `nums[i] + nums[left] + nums[right]`
+
+   * If sum == 0 → save triplet
+   * If sum < 0 → move `left` right
+   * If sum > 0 → move `right` left
+5. Skip duplicates to avoid repeated triplets.
+
+---
+
+## 🧾 Python Code
+
+```python
+from typing import List
+
+def three_sum(nums: List[int]) -> List[List[int]]:
+    nums.sort()
+    result = []
+
+    for i in range(len(nums) - 2):
+        # Skip duplicate first numbers
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue
+
+        left, right = i + 1, len(nums) - 1
+        while left < right:
+            total = nums[i] + nums[left] + nums[right]
+
+            if total == 0:
+                result.append([nums[i], nums[left], nums[right]])
+
+                # Skip duplicates
+                while left < right and nums[left] == nums[left + 1]:
+                    left += 1
+                while left < right and nums[right] == nums[right - 1]:
+                    right -= 1
+
+                left += 1
+                right -= 1
+
+            elif total < 0:
+                left += 1
+            else:
+                right -= 1
+
+    return result
+```
+
+---
+
+## 🧮 Example Run
+
+```python
+nums = [-1, 0, 1, 2, -1, -4]
+print(three_sum(nums))
+```
+
+**Output:**
+
+```
+[[-1, -1, 2], [-1, 0, 1]]
+```
+
+---
+
+## ⏱️ Time & Space Complexity
+
+| Step                              | Complexity                      |
+| --------------------------------- | ------------------------------- |
+| Sorting                           | O(n log n)                      |
+| Two-pointer scan for each element | O(n²)                           |
+| **Total Time**                    | **O(n²)**                       |
+| **Space**                         | **O(1)** (ignoring output list) |
+
+---
+
+## 🎯 Key Takeaways
+
+✅ Use **sorting + two pointers** for efficiency
+✅ Skip **duplicate numbers** to avoid repeating triplets
+✅ Time complexity is **O(n²)** which is optimal for this problem
+
+---
+
+## 🌍 Real-World Analogy
+
+Think of having three friends splitting a dinner bill.
+
+Each friend contributes money — some might overpay, some might underpay.
+You want to find **three people** whose total payments **perfectly balance** the cost.
+
+That’s exactly what the 3Sum problem does — find groups that **sum to zero** (balanced).
+
+---
+
+## 🧱 Summary
+
+| Concept            | Explanation                             |
+| ------------------ | --------------------------------------- |
+| Problem            | Find triplets that sum to 0             |
+| Input              | Array of integers                       |
+| Output             | List of unique triplets                 |
+| Technique          | Sorting + Two pointers                  |
+| Time Complexity    | O(n²)                                   |
+| Real World Example | Balancing profit/loss or group payments |
+
+---
+
+## 🚀 Final Thoughts
+
+The **3Sum problem** teaches you the art of **reducing complexity** by sorting and using **two-pointer logic** — a pattern you’ll see in many array problems.
+
+
+```
+
