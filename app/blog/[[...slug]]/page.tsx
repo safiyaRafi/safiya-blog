@@ -9,6 +9,7 @@ export default async function Page(props: {
 }) {
   const params = await props.params
   const page = source.getPage(params.slug)
+  console.log("page slug:", params.slug)
   if (!page) notFound()
 
   const MDXContent = page.data.body
