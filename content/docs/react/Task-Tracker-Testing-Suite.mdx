@@ -1,0 +1,272 @@
+---
+title: "Task Tracker Testing Suite — A Real World Full Stack Project"
+description: "Learn how to build and test a complete FastAPI + React project with database, authentication, and automated testing."
+date: "2025-11-07"
+tags: ["FastAPI", "React", "Testing", "Full Stack", "PyTest", "Jest"]
+---
+
+# 🧠 Task Tracker Testing Suite  
+*A Full-Stack Project with FastAPI, React, and Testing*
+
+---
+
+## 🚀 Overview
+
+The **Task Tracker Testing Suite** is a full-stack web application that shows how to build and test a real-world project.
+
+It includes:
+
+- **FastAPI backend** with SQLite database  
+- **React frontend** using Axios  
+- **Automated tests** with PyTest and Jest  
+
+This project helps you understand the **end-to-end development and testing process** of a real-world app.
+
+---
+
+## 🧩 Backend — FastAPI
+
+The backend is built using **FastAPI** and handles API routes, database connections, and authentication.
+
+### 🔹 Key Features
+
+- Create and list tasks  
+- Authentication (simple login)  
+- SQLite database using SQLAlchemy  
+- API testing with PyTest  
+- Swagger and ReDoc documentation  
+
+---
+
+### 📁 Folder Structure
+
+```
+
+backend/
+├── main.py
+├── models.py
+├── database.py
+├── test_main.py
+└── requirements.txt
+
+````
+
+---
+
+### 🧠 Example — Create a Task API
+
+```python
+@app.post("/tasks")
+def create_task(title: str, db: Session = Depends(get_db)):
+    task = models.Task(title=title)
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+    return task
+````
+
+This function creates a new task and stores it in the SQLite database.
+
+---
+
+### 🧪 Testing API with PyTest
+
+You can test your APIs using **FastAPI’s TestClient** and PyTest.
+
+```python
+def test_create_task():
+    response = client.post("/tasks?title=Buy Milk")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["title"] == "Buy Milk"
+```
+
+This test checks that the API correctly creates a new task and returns the expected result.
+
+---
+
+## 🔐 Authentication
+
+A simple login route is added for authentication testing.
+
+```python
+@app.post("/login")
+def login(username: str, password: str):
+    if username == "admin" and password == "123":
+        return {"token": "abc123"}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+```
+
+---
+
+### ✅ Authentication Tests
+
+```python
+def test_login_success():
+    response = client.post("/login?username=admin&password=123")
+    assert response.status_code == 200
+    assert "token" in response.json()
+
+def test_login_failure():
+    response = client.post("/login?username=wrong&password=nope")
+    assert response.status_code == 401
+```
+
+These two tests confirm that valid credentials return a token and invalid ones are rejected.
+
+---
+
+## 🧱 Database Testing
+
+Database testing ensures your models and connection work properly.
+
+```python
+def test_database_connection():
+    db = SessionLocal()
+    new_task = Task(title="Test DB")
+    db.add(new_task)
+    db.commit()
+    task_in_db = db.query(Task).filter_by(title="Test DB").first()
+    assert task_in_db is not None
+    db.close()
+```
+
+This test creates a new record, saves it, retrieves it, and confirms the connection works.
+
+---
+
+## ⚛️ Frontend — React
+
+The frontend is made with **React**.
+It allows users to add and view tasks from the backend API.
+
+### 🔹 Folder Structure
+
+```
+frontend/
+├── src/
+│   ├── api.js
+│   ├── TaskList.js
+│   ├── App.js
+│   ├── App.test.js
+│   └── __tests__/
+│        └── TaskList.test.js
+└── package.json
+```
+
+---
+
+### 🔹 Example — API Functions
+
+```js
+import axios from "axios";
+
+const API_URL = "http://127.0.0.1:8000";
+
+export const getTasks = () => axios.get(`${API_URL}/tasks`);
+export const createTask = (title) => axios.post(`${API_URL}/tasks?title=${title}`);
+```
+
+These functions handle API calls between React and FastAPI.
+
+---
+
+### 🔹 React Component (Logic Only)
+
+```js
+// Simplified pseudocode
+useEffect(() => {
+  getTasks().then((res) => setTasks(res.data));
+}, []);
+
+const addTask = async () => {
+  const res = await createTask(title);
+  setTasks([...tasks, res.data]);
+};
+```
+
+The `useEffect` hook fetches tasks when the component loads.
+The `addTask` function adds a new task to the list.
+
+---
+
+## 🧪 Frontend Testing (Jest + React Testing Library)
+
+Frontend testing ensures your UI behaves correctly.
+
+```js
+jest.mock("../api", () => ({
+  getTasks: jest.fn(() => Promise.resolve({ data: [] })),
+  createTask: jest.fn(() => Promise.resolve({ data: { id: 1, title: "Buy Milk" } })),
+}));
+
+test("adds a new task", async () => {
+  render(<TaskList />);
+  fireEvent.change(screen.getByPlaceholderText("Enter task"), { target: { value: "Buy Milk" } });
+  fireEvent.click(screen.getByText("Add"));
+  const newTask = await screen.findByText("Buy Milk");
+  expect(newTask).toBeInTheDocument();
+});
+```
+
+This test verifies that when a user adds a task, it appears on the screen correctly.
+
+---
+
+## 🧠 Real-World Use Case
+
+Imagine a small company using this app:
+
+* Employees add tasks such as “Fix bug” or “Prepare report”.
+* The manager logs in to review all tasks.
+* Each feature is tested automatically to ensure reliability.
+
+This project mimics a real business workflow where testing prevents issues in production.
+
+---
+
+## 🧰 Tools and Technologies
+
+| Category         | Tools                        |
+| ---------------- | ---------------------------- |
+| Backend          | FastAPI, SQLAlchemy, Uvicorn |
+| Database         | SQLite                       |
+| Frontend         | React, Axios                 |
+| Backend Testing  | PyTest, TestClient           |
+| Frontend Testing | Jest, React Testing Library  |
+| Languages        | Python, JavaScript (ES6)     |
+
+---
+
+## 🧪 Testing Pyramid
+
+```
+        ▲
+        │  End-to-End (React UI)
+        │  Few tests
+        │
+        │  Integration (API + DB)
+        │  Some tests
+        │
+        │  Unit Tests (Functions)
+        │  Many tests
+        ▼
+```
+
+This structure ensures that both frontend and backend are stable, with tests at every layer.
+
+---
+
+## ✅ Summary
+
+* **Backend:** FastAPI + SQLite + Auth
+* **Frontend:** React + Axios
+* **Testing:** PyTest + Jest
+* **Database:** SQLAlchemy ORM
+* **All Tests Passed:** ✅
+
+Testing keeps applications stable and reliable — and this project demonstrates how to build and verify a real-world system step-by-step.
+
+---
+
+
