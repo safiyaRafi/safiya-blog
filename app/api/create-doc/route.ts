@@ -87,7 +87,7 @@ export async function POST(req: Request) {
 
         // Now inject the docs array entry
         // We search for _runtime.docs<...>([ <existing-list> ], ...)
-        const docsRegex = /_runtime\.docs<[^>]>\(\[([\s\S]?)\],\s*\[\]\)/m;
+        const docsRegex = /_runtime\.docs<[^>]*>\(\[([\s\S]*?)\],\s*\[\]\)/m;
         const match = indexContent.match(docsRegex);
 
         const entry = `{ info: {"path":"${catSlug}/${fileName}","fullPath":"content\\\\docs\\\\${catSlug}\\\\${fileName}"}, data: d_docs_${nextIndex} }, `;
@@ -111,6 +111,6 @@ export async function POST(req: Request) {
         });
     } catch (err: any) {
         console.error("[create-doc] Error:", err);
-        return NextResponse.json({ error: String(err?.message || err) }, { status: 500 });
-    }
+        return NextResponse.json({ error: String(err?.message || err) }, { status: 500 });
+    }
 }
