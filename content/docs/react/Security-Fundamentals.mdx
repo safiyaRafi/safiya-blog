@@ -1,0 +1,306 @@
+---
+title: "Security Fundamentals — Real World Examples for Modern Web Apps"
+description: "Learn core security concepts like JWT, OAuth2, bcrypt, and CORS with simple real-world examples for full stack applications."
+date: "2025-11-08"
+tags: ["Security", "JWT", "OAuth2", "bcrypt", "CORS", "Authentication"]
+---
+
+# 🔐 Security Fundamentals  
+*Building safer web applications with real-world examples*
+
+---
+
+## 🧠 Overview
+
+Security is one of the most important parts of any web application.  
+A single weak spot can expose user data, leak credentials, or break trust.  
+
+In this article, we’ll learn how modern web apps stay secure using:
+- JWT vs Session-based Authentication  
+- OAuth2 and OpenID Connect  
+- Password hashing with bcrypt  
+- CORS configuration  
+- Common security vulnerabilities  
+
+We’ll explore each topic with **simple logic, real-world use cases**, and **clear examples**.
+
+---
+
+## 🪙 1. JWT vs Session-Based Authentication
+
+Both **JWT (JSON Web Tokens)** and **Session-based authentication** handle how users stay logged in — but they work differently.
+
+---
+
+### 🔸 Session-Based Authentication
+
+**How it works:**
+1. User logs in with a username and password.  
+2. Server creates a **session** (stores user info in memory or database).  
+3. A **session ID** is sent to the browser as a cookie.  
+4. Every next request includes that cookie to prove identity.
+
+**Example Flow:**
+
+```
+
+User → Login → Server stores session → Cookie sent to browser → Future requests use cookie
+
+```
+
+**Pros:**
+- Secure if cookies are set with `HttpOnly` and `Secure`.  
+- Easy to implement.  
+
+**Cons:**
+- Server must store sessions → more load.  
+- Doesn’t scale easily for distributed apps.
+
+---
+
+### 🔹 JWT (JSON Web Token)
+
+**How it works:**
+1. User logs in → server sends a **signed token (JWT)** to the client.  
+2. Client stores it (usually in localStorage).  
+3. Each future request sends the token in headers (`Authorization: Bearer <token>`).  
+4. The server verifies the token without needing to store it.
+
+**Example Flow:**
+
+```
+
+User → Login → Server creates JWT → Browser stores it → JWT sent with every request
+
+```
+
+**Pros:**
+- No need to store sessions.  
+- Great for APIs and microservices.  
+
+**Cons:**
+- If stolen, JWT is valid until it expires.  
+- Must handle logout and refresh securely.
+
+---
+
+💡 **Real-World Example:**
+- **Session-based auth:** Common in websites like WordPress, which use cookies to manage logins.  
+- **JWT:** Used in modern SPAs (React, Vue, Angular) and mobile apps — like Instagram or Twitter APIs.
+
+---
+
+## 🌐 2. OAuth2 and OpenID Connect
+
+These are **protocols for secure login and authorization**, used when users log in with **Google, GitHub, or Facebook**.
+
+---
+
+### 🔸 OAuth2 (Authorization)
+
+**Definition:**  
+OAuth2 allows third-party apps to access limited user data without sharing passwords.
+
+**Example Flow (GitHub Login):**
+
+1. You click “Login with GitHub.”  
+2. GitHub asks: “Do you allow this app to access your profile?”  
+3. If yes → GitHub sends a **token** to your app.  
+4. Your app uses this token to fetch only permitted info.
+
+**Real Example:**
+> When you use LinkedIn to connect your GitHub, OAuth2 ensures GitHub shares only what’s allowed — not your password.
+
+---
+
+### 🔹 OpenID Connect (Authentication Layer on Top of OAuth2)
+
+**Definition:**  
+OAuth2 handles *authorization* (access to resources).  
+**OpenID Connect (OIDC)** adds *authentication* — verifying *who the user is*.
+
+**Example Flow (Google Login):**
+1. User clicks “Login with Google.”  
+2. Google verifies the user and sends an **ID token (JWT)** to your app.  
+3. The app reads user info (name, email) from the token — no password needed.
+
+**Real Example:**
+> When you log into Spotify with your Google account, OpenID Connect handles the identity verification behind the scenes.
+
+---
+
+## 🔐 3. Password Hashing with bcrypt
+
+Storing plain passwords is one of the biggest security mistakes.  
+If your database leaks, attackers can see every password.
+
+---
+
+### 🔸 bcrypt
+
+**Definition:**  
+bcrypt is a **password hashing function** that securely stores passwords by turning them into unreadable strings.
+
+**How it works:**
+1. User creates a password: `MySecret123`  
+2. bcrypt adds a random **salt** (extra random characters).  
+3. It hashes both the password + salt into something like:  
+```
+
+$2b$12$kH7hd9...9yx0p
+
+````
+4. The server stores only this hash — not the original password.
+
+**Example (Python):**
+
+```python
+from passlib.hash import bcrypt
+
+hashed = bcrypt.hash("MySecret123")
+print(hashed)
+
+# Verify later
+bcrypt.verify("MySecret123", hashed)
+````
+
+💡 **Real-World Example:**
+Every time you sign up for Gmail or Instagram, your password is hashed with algorithms like bcrypt or Argon2.
+Even Google can’t see your real password — only the hash.
+
+---
+
+## 🌍 4. CORS (Cross-Origin Resource Sharing)
+
+**Definition:**
+CORS controls which websites can access your API.
+
+Without it, **any site** could make requests to your backend — causing major security issues.
+
+---
+
+### 🔸 Example
+
+Let’s say your frontend runs on:
+
+```
+http://localhost:3000
+```
+
+and your API is hosted on:
+
+```
+http://127.0.0.1:8000
+```
+
+By default, browsers **block** requests between different origins.
+
+To fix this safely, you must enable **CORS** only for trusted origins.
+
+**FastAPI Example:**
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = ["http://localhost:3000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+💡 **Real-World Example:**
+Imagine your API accepts payment data — without CORS, any random site could try to send fake requests to it.
+CORS ensures only your trusted frontend can access your backend.
+
+---
+
+## ⚠️ 5. Common Security Vulnerabilities
+
+Every developer should know and protect against the most common web vulnerabilities.
+
+---
+
+### 🧨 SQL Injection
+
+**Problem:** Attackers inject malicious SQL into input fields.
+**Example:**
+
+```sql
+SELECT * FROM users WHERE name = 'admin' OR '1'='1';
+```
+
+**Fix:** Always use **parameterized queries** or ORM frameworks.
+
+💡 **Real Example:**
+In 2013, Yahoo was hacked through SQL injection that exposed millions of user accounts.
+
+---
+
+### 🧨 Cross-Site Scripting (XSS)
+
+**Problem:** Attackers inject scripts into pages viewed by other users.
+**Example:**
+
+```html
+<input value="<script>alert('Hacked!')</script>">
+```
+
+**Fix:** Sanitize all user inputs before rendering on the page.
+
+💡 **Real Example:**
+Social media comment sections are common XSS targets —
+hackers try to inject malicious scripts disguised as comments.
+
+---
+
+### 🧨 CSRF (Cross-Site Request Forgery)
+
+**Problem:** A malicious site tricks users into performing actions while logged in elsewhere.
+**Fix:** Use **CSRF tokens** in every form submission and verify them on the backend.
+
+💡 **Real Example:**
+Banking apps add CSRF tokens to prevent attackers from transferring money using logged-in sessions.
+
+---
+
+### 🧨 Insecure Direct Object Reference (IDOR)
+
+**Problem:** User can access data by changing an ID in the URL.
+**Example:**
+`/api/users/2` instead of `/api/users/1`
+
+**Fix:** Always verify that the logged-in user owns or is allowed to view the resource.
+
+💡 **Real Example:**
+In 2021, several fintech apps were reported leaking user info due to missing ID access checks.
+
+---
+
+## 🧩 Summary
+
+| Concept    | Description                                | Real-World Analogy                   |
+| ---------- | ------------------------------------------ | ------------------------------------ |
+| JWT        | Stateless authentication using tokens      | Like carrying a digital ID card      |
+| Session    | Server-side stored login session           | Like restaurant queue tokens         |
+| OAuth2     | Limited data access without passwords      | “Login with GitHub” or “Google”      |
+| bcrypt     | Password hashing                           | Locking passwords in a digital safe  |
+| CORS       | Controls which domains can access your API | Security guard checking ID at a gate |
+| XSS / SQLi | Common attack types                        | Hackers injecting malicious input    |
+
+---
+
+## 💡 Real-World Takeaway
+
+Security is not a one-time setup — it’s a continuous process.
+In real software teams (like at Google or PayPal), engineers perform **code reviews, vulnerability scans, and penetration testing** regularly.
+
+A secure app doesn’t just protect data — it protects **user trust**.
+
+---
+
+
