@@ -1,10 +1,25 @@
 ---
-title: "test"
-category: "test"
+title: "Understanding useMemo in React"
+description: "Learn how to optimize performance in React by memoizing expensive calculations using useMemo."
 ---
 
----
-title: ""
+# 🧠 Understanding useMemo in React
+
+React's **useMemo** hook is used to *memoize a computed value*, so that it only recalculates when its dependencies change.  
+This helps improve performance by preventing unnecessary expensive calculations during re-renders.
+
 ---
 
-# test
+## 💡 Why useMemo is Needed
+
+Imagine you have a slow calculation inside a React component.  
+Each time the component re-renders, that calculation runs again — even if the inputs haven’t changed!
+
+useMemo fixes that by caching (memoizing) the result.
+
+---
+
+## 🧩 Basic Syntax
+
+```js
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
