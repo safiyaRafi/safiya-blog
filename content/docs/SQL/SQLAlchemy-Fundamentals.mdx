@@ -1,0 +1,341 @@
+---
+title: "SQLAlchemy Fundamentals — A Beginner-Friendly Guide"
+description: "Understand SQLAlchemy step by step: Core vs ORM, database connections, session management, model definitions, and relationship mapping — with real-world examples."
+date: "2025-11-13"
+tags: ["Python", "SQLAlchemy", "Database", "ORM", "Backend"]
+---
+
+# 🧩 SQLAlchemy Fundamentals  
+*A complete and simple guide to understanding how Python interacts with databases.*
+
+---
+
+## 🧠 What is SQLAlchemy?
+
+**SQLAlchemy** is a Python library used to work with databases in a clean, consistent way.  
+It helps developers write Python code instead of long, complex SQL queries — while still being powerful and flexible.
+
+💡 **Think of it like this:**  
+- Without SQLAlchemy → You write SQL manually  
+- With SQLAlchemy → You use Python objects and functions that generate SQL automatically  
+
+It’s like talking to your database in **Python’s language**.
+
+---
+
+## 🧱 Why Use SQLAlchemy?
+
+SQLAlchemy provides:
+- ✅ Easier code maintenance  
+- ✅ Database independence (works with MySQL, PostgreSQL, SQLite, etc.)  
+- ✅ Built-in security (avoids SQL injection)  
+- ✅ Clean data handling using Python classes  
+
+💡 **Real-World Example:**  
+A FastAPI app managing tasks or users uses SQLAlchemy to store data in a database — without manually writing `INSERT` or `SELECT` SQL.
+
+---
+
+## ⚙️ 1. Core vs ORM — The Two Faces of SQLAlchemy  
+
+SQLAlchemy has **two main layers**:  
+
+| Feature | SQLAlchemy Core | SQLAlchemy ORM |
+|----------|------------------|----------------|
+| Style | Write SQL using Python syntax | Write Python classes and objects |
+| Use Case | Simple or raw queries | Complex, object-based data models |
+| Example | `select(users)` | `db.query(User).all()` |
+
+---
+
+### 🔸 SQLAlchemy Core (Manual but Powerful)
+
+In **Core**, you define tables and write SQL-like commands using Python.
+
+```python
+from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData, select
+
+engine = create_engine("sqlite:///example.db")
+metadata = MetaData()
+
+users = Table(
+    "users", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("name", String),
+)
+
+metadata.create_all(engine)
+
+# Insert and read
+with engine.connect() as conn:
+    conn.execute(users.insert().values(name="Safi"))
+    result = conn.execute(select(users))
+    print(result.fetchall())
+````
+
+💬 You’re still writing SQL — just in Python syntax.
+
+---
+
+### 🔹 SQLAlchemy ORM (Object-Relational Mapper)
+
+ORM turns database tables into **Python classes** —
+so you can interact with the database as if it were just Python objects.
+
+```python
+from sqlalchemy.orm import DeclarativeBase, Session, Mapped, mapped_column
+from sqlalchemy import create_engine, String
+
+class Base(DeclarativeBase): pass
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+
+engine = create_engine("sqlite:///example.db")
+Base.metadata.create_all(engine)
+
+with Session(engine) as session:
+    session.add(User(name="Rukhya"))
+    session.commit()
+```
+
+💡 Instead of thinking about tables and rows, you think in terms of **objects and classes**.
+This makes ORM perfect for web apps built with **FastAPI**, **Flask**, or **Django**.
+
+---
+
+## 🔌 2. Database Connections
+
+SQLAlchemy connects Python to your chosen database through something called an **Engine**.
+
+Think of the **engine** as the bridge between your code and the database.
+
+---
+
+### 🔸 Example
+
+```python
+from sqlalchemy import create_engine
+
+# SQLite (local file database)
+engine = create_engine("sqlite:///tasks.db", echo=True)
+```
+
+Here:
+
+* `sqlite:///tasks.db` → Database URL
+* `echo=True` → Prints SQL statements (helpful for debugging)
+
+---
+
+### 🔹 Other Database URLs
+
+| Database   | Example URL                                      |
+| ---------- | ------------------------------------------------ |
+| SQLite     | `sqlite:///data.db`                              |
+| PostgreSQL | `postgresql://user:password@localhost/dbname`    |
+| MySQL      | `mysql+pymysql://user:password@localhost/dbname` |
+
+💡 **Real-World Example:**
+Your FastAPI app might use PostgreSQL in production but SQLite for local testing.
+SQLAlchemy makes it easy to switch by just changing the URL.
+
+---
+
+## 🌀 3. Session Management
+
+### 🔹 What is a Session?
+
+A **Session** represents a single “conversation” with your database.
+You use it to:
+
+* Add new data
+* Query data
+* Commit changes
+* Rollback if something goes wrong
+
+Think of it like a “draft editor” —
+you collect all your changes, then save (commit) them at once.
+
+---
+
+### 🔸 Example
+
+```python
+from sqlalchemy.orm import Session
+from models import User, engine
+
+session = Session(engine)
+
+# Add new data
+user = User(name="Safi")
+session.add(user)
+
+# Commit to save changes
+session.commit()
+```
+
+💡 **Analogy:**
+A session is like a shopping cart —
+you add items (database changes), and when ready, you check out (commit).
+
+---
+
+### 🔹 Closing Sessions
+
+Always close sessions after use to prevent memory leaks.
+
+```python
+session.close()
+```
+
+💡 **Pro Tip:**
+Use **context managers** to handle this automatically:
+
+```python
+with Session(engine) as session:
+    session.add(User(name="Ayaan"))
+    session.commit()
+```
+
+---
+
+## 🧩 4. Model Definitions
+
+### 🔹 The Concept
+
+A **model** is a Python class that represents a table in your database.
+Each attribute in the class corresponds to a column in the table.
+
+---
+
+### 🔸 Example
+
+```python
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, Integer
+
+class Base(DeclarativeBase): pass
+
+class Task(Base):
+    __tablename__ = "tasks"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(100))
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+```
+
+💬 This creates a table called `tasks` with three columns:
+`id`, `title`, and `status`.
+
+---
+
+💡 **Real-World Example:**
+In a **Task Tracker App**, you’d have models like:
+
+* `User`
+* `Task`
+* `Project`
+
+Each would map directly to a database table.
+
+---
+
+### 🔹 Benefits of Using Models
+
+| Benefit              | Description                          |
+| -------------------- | ------------------------------------ |
+| ✅ Clean and readable | Pythonic structure                   |
+| 🔐 Secure            | Avoids SQL injection                 |
+| 💾 Easy migration    | Works across databases               |
+| ⚙️ Maintainable      | Change code once, reflect everywhere |
+
+---
+
+## 🔗 5. Relationship Mapping
+
+### 🔹 The Concept
+
+Databases often have relationships between tables:
+
+* One user → Many tasks
+* One project → Many users
+
+SQLAlchemy handles these with **Foreign Keys** and **Relationships**.
+
+---
+
+### 🔸 Example: One-to-Many
+
+```python
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import ForeignKey
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    tasks: Mapped[list["Task"]] = relationship("Task", back_populates="owner")
+
+class Task(Base):
+    __tablename__ = "tasks"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner: Mapped["User"] = relationship("User", back_populates="tasks")
+```
+
+💡 **What Happens:**
+
+* Each task belongs to one user
+* A user can have many tasks
+
+Now, you can access:
+
+```python
+user.tasks  # All tasks for a user
+task.owner  # User who owns this task
+```
+
+---
+
+💡 **Real-World Example:**
+In **Asana** or **Trello**, one user can create multiple tasks —
+this is exactly how “one-to-many” works behind the scenes.
+
+---
+
+### 🔹 Relationship Types
+
+| Relationship | Example           | Description                          |
+| ------------ | ----------------- | ------------------------------------ |
+| One-to-One   | User ↔ Profile    | Each user has one profile            |
+| One-to-Many  | User ↔ Tasks      | One user can have many tasks         |
+| Many-to-Many | Student ↔ Courses | Many students enroll in many courses |
+
+---
+
+## 🧾 Summary
+
+| Concept              | Description                     | Real-World Example                           |
+| -------------------- | ------------------------------- | -------------------------------------------- |
+| Core vs ORM          | Two ways to work with databases | ORM used in FastAPI apps                     |
+| Database Connections | Connect Python to your DB       | SQLite for testing, PostgreSQL in production |
+| Session Management   | Add, commit, rollback safely    | Like a shopping cart before checkout         |
+| Model Definitions    | Map Python classes to tables    | Task, User, Project models                   |
+| Relationship Mapping | Link data between tables        | User → Tasks in a to-do app                  |
+
+---
+
+## 💡 Final Thought
+
+SQLAlchemy bridges Python and the database world.
+It gives you **control like raw SQL** and **convenience like Python objects**.
+
+Once you master it, building backend apps with **FastAPI**, **Flask**, or even **Django ORM alternatives** becomes smooth, secure, and scalable.
+
+💬 “Databases are powerful — SQLAlchemy just makes them human-friendly.”
+
+---
+
