@@ -28,6 +28,7 @@ export default async function Page(props: {
             },
           )}
         />
+
       </DocsBody>
     </DocsPage>
   )
@@ -47,5 +48,5 @@ export async function generateMetadata(props: {
   return {
     title: page.data.title,
     description: page.data.description,
-  }
+  }
 }

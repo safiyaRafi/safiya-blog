@@ -5,7 +5,7 @@ import { source } from "@/lib/source"
 
 export default function RootDocsLayout({ children }: { children: ReactNode }) {
     return (
-        <DocsLayout tree={source.pageTree} nav={{ title: "My App" }}>
+        <DocsLayout tree={source.pageTree} nav={{ title: "My App" ,  }}>
             {children}
         </DocsLayout>
     )
