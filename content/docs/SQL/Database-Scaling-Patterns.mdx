@@ -1,0 +1,263 @@
+---
+title: "Database Scaling Patterns"
+description: "Detailed explanation of database scaling techniques like read replicas, sharding, partitioning, and federation with examples and code snippets."
+tags:
+  - SQL
+  - Database
+  - Scaling
+  - Sharding
+---
+
+# 🗄️ Database Scaling Patterns
+
+---
+
+## ⚙️ 1. Read Replicas and Write Scaling
+
+### 📘 Concept
+- A **read replica** is a copy of the **primary (main)** database.
+- The **primary** handles **writes** (INSERT, UPDATE, DELETE).
+- The **replicas** handle **reads** (SELECT queries).
+
+This splits the load — writes go to the main DB, reads go to replicas.
+
+### 🌍 Real-World Example
+Think of **Instagram**:
+- When you upload a photo → it's a **write** operation → goes to the **primary DB**.
+- When millions view your photo → they perform **reads** → served by **read replicas**.
+
+### 💻 Example (MySQL)
+
+```sql
+-- Primary DB
+INSERT INTO posts (user_id, caption, image_url)
+VALUES (123, 'Beach Day', 'photo.jpg');
+
+-- Read Replica
+SELECT * FROM posts WHERE user_id = 123;
+````
+
+### ✅ Benefits
+
+* Improves read performance
+* Reduces main DB load
+* Enables replicas near users for faster response
+
+### ⚠️ Challenges
+
+* Slight delay in replication (replication lag)
+* Writes still go to one primary — write scaling is limited
+
+---
+
+## 🧩 2. Horizontal vs Vertical Partitioning
+
+### A. Vertical Partitioning
+
+Splitting a table by **columns** into smaller, focused tables.
+
+#### 🌍 Example
+
+You have a large `Users` table:
+
+| id | name | email | password | bio | profile_picture |
+| -- | ---- | ----- | -------- | --- | --------------- |
+
+You can split it into:
+
+* `UserCredentials(id, email, password)`
+* `UserProfile(id, name, bio, profile_picture)`
+
+This helps when different services need different parts of user data.
+
+#### 💻 Example
+
+```sql
+-- Query only login data
+SELECT email, password FROM UserCredentials WHERE email = 'safi@example.com';
+
+-- Query only profile info
+SELECT name, bio FROM UserProfile WHERE id = 123;
+```
+
+---
+
+### B. Horizontal Partitioning (Sharding)
+
+Splitting a table by **rows** based on some rule, like user region or ID range.
+
+#### 🌍 Example
+
+A `Customers` table with 10 million users can be split as:
+
+* `Customers_Asia`
+* `Customers_Europe`
+* `Customers_USA`
+
+Each database handles fewer records, improving performance.
+
+#### 💻 Example (Pseudo)
+
+```python
+def get_db_for_customer(customer_id):
+    if customer_id < 1000000:
+        return "db_shard_1"
+    elif customer_id < 2000000:
+        return "db_shard_2"
+    else:
+        return "db_shard_3"
+```
+
+---
+
+## 🌐 3. Sharding Strategies and Challenges
+
+**Sharding** is automated horizontal partitioning — splitting one big database into multiple smaller ones (shards).
+
+### Common Sharding Strategies
+
+1. **Range-Based Sharding**
+
+   * Divide by value range (like user IDs)
+   * Example: Shard 1 → IDs 1–1M, Shard 2 → IDs 1M–2M
+
+2. **Hash-Based Sharding**
+
+   * Use a hash function to assign data
+   * Example: `user_id % 4` → sends data to one of 4 shards
+
+3. **Geo-Based Sharding**
+
+   * Data stored based on user’s region (Asia, Europe, USA)
+
+#### 🌍 Example
+
+**Netflix** stores users’ data in regional shards:
+
+* Asia → `Shard_Asia`
+* Europe → `Shard_Europe`
+* USA → `Shard_USA`
+
+#### 💻 Example (Hash-based)
+
+```python
+def get_shard(user_id):
+    return f"shard_{user_id % 4}"
+```
+
+### ⚠️ Challenges
+
+* Complex queries across shards
+* Rebalancing data when shards grow
+* Maintaining consistency across multiple shards
+
+---
+
+## 🔁 4. Consistency vs Availability (CAP Theorem)
+
+### CAP Theorem
+
+A distributed database can only guarantee **two** of these three at a time:
+
+1. **Consistency (C):** All nodes show the same data.
+2. **Availability (A):** Every request gets a response.
+3. **Partition Tolerance (P):** The system works even if communication between nodes fails.
+
+### 🌍 Examples
+
+| Type          | Example           | Priority                                                 |
+| ------------- | ----------------- | -------------------------------------------------------- |
+| **CP System** | Banking system    | Consistency first — balances must match                  |
+| **AP System** | Social media feed | Availability first — show something even if slightly old |
+
+#### 💻 Example
+
+```python
+# AP System: Social media feed (eventual consistency)
+feed_cache = get_cached_posts(user_id)
+return feed_cache or fetch_from_db_later()
+```
+
+Twitter prefers **availability**, so it shows cached tweets immediately.
+
+---
+
+## 🧭 5. Database Federation Patterns
+
+### 📘 Concept
+
+Each **domain** or **microservice** has its own database instead of one giant shared database.
+
+### 🌍 Example (E-commerce)
+
+* `UsersDB` → manages users
+* `OrdersDB` → handles orders
+* `ProductsDB` → manages products
+* `PaymentsDB` → processes payments
+
+Each team owns its data and scales independently.
+
+#### 💻 Example (API Integration)
+
+```python
+# Order Service
+order = {
+  "user": requests.get("http://users-service/123").json(),
+  "items": requests.get("http://products-service/cart/123").json(),
+}
+```
+
+### ✅ Benefits
+
+* Easier to scale each domain separately
+* Better isolation (one failure won’t affect others)
+* Supports microservice architecture
+
+### ⚠️ Challenges
+
+* Difficult to perform joins across databases
+* Risk of data duplication
+* Requires good inter-service communication (APIs)
+
+---
+
+## 🧩 Summary Table
+
+| Pattern                            | Goal                                 | Real-World Example            | Key Challenge        |
+| ---------------------------------- | ------------------------------------ | ----------------------------- | -------------------- |
+| Read Replicas                      | Scale reads                          | Instagram viewing posts       | Replication lag      |
+| Vertical Partitioning              | Split by columns                     | User profile vs credentials   | Complex joins        |
+| Horizontal Partitioning / Sharding | Split by rows                        | Netflix regional data         | Cross-shard queries  |
+| CAP Trade-offs                     | Balance consistency and availability | Banking vs Twitter            | Network partitions   |
+| Federation                         | Domain-based scaling                 | Amazon with UsersDB, OrdersDB | Cross-domain queries |
+
+---
+
+## 🧠 Key Takeaways
+
+* **Read replicas** → Improve read performance.
+* **Vertical partitioning** → Split by columns for efficiency.
+* **Horizontal partitioning (Sharding)** → Split by rows for scalability.
+* **CAP trade-offs** → Choose between consistency and availability.
+* **Federation** → Split data by business domain (microservices).
+
+---
+
+## 💡 Summary Code Snippet
+
+```python
+# Example: Routing logic for a sharded database
+def get_user_db(user_id):
+    if user_id % 2 == 0:
+        return "shard_east"
+    else:
+        return "shard_west"
+
+user_db = get_user_db(105)
+print(f"Storing user 105 in {user_db}")
+```
+
+---
+
+**Database scaling is not one-size-fits-all.**
+Each pattern fits a specific use case — combine them wisely depending on your system’s **traffic, data volume, and reliability goals**.
