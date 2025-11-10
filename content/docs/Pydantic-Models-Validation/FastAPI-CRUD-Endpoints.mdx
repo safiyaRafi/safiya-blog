@@ -1,0 +1,304 @@
+---
+title: "FastAPI CRUD Endpoints — Build, Validate, and Handle Data the Right Way"
+description: "Learn how to create and update data with FastAPI using POST and PUT endpoints, proper validation, and structured error handling."
+date: "2025-11-14"
+tags: ["FastAPI", "CRUD", "Backend", "Python", "API"]
+---
+
+# ⚙️ FastAPI CRUD Endpoints  
+*Learn how to build and validate data with clean and reliable FastAPI routes.*
+
+---
+
+## 🧠 What is CRUD?
+
+CRUD stands for **Create, Read, Update, Delete** — the four basic operations every backend must support.  
+FastAPI makes CRUD development easy, fast, and secure with minimal code.
+
+---
+
+💡 **Real-World Example:**  
+A **Task Tracker App** uses CRUD to:
+- Create new tasks (POST)  
+- View tasks (GET)  
+- Update them (PUT)  
+- Delete them (DELETE)  
+
+Every web app — from **Trello** to **Notion** — follows this same pattern.
+
+---
+
+## 🔹 1. POST Endpoint — Create Data  
+
+### 🧩 Step 1: Define a Model  
+
+Use **Pydantic** to define what a valid task looks like.
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Task(BaseModel):
+    title: str
+    description: str | None = None
+    completed: bool = False
+````
+
+---
+
+### 🧩 Step 2: Create the Endpoint
+
+```python
+@app.post("/tasks")
+def create_task(task: Task):
+    return {"message": "Task created successfully", "data": task}
+```
+
+✅ This:
+
+* Accepts JSON input
+* Validates it automatically
+* Returns the created data
+
+---
+
+### 💡 Real-World Example
+
+When a user creates a new note in **Google Keep**,
+the backend uses a POST request to store that note in the database.
+
+---
+
+### 🧾 Example Request
+
+```json
+POST /tasks
+{
+  "title": "Buy groceries",
+  "description": "Milk, Bread, Eggs"
+}
+```
+
+### ✅ Example Response
+
+```json
+{
+  "message": "Task created successfully",
+  "data": {
+    "title": "Buy groceries",
+    "description": "Milk, Bread, Eggs",
+    "completed": false
+  }
+}
+```
+
+---
+
+## 🔹 2. PUT Endpoint — Update Data
+
+### 🧩 Step 1: Create Update Model
+
+```python
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    completed: bool | None = None
+```
+
+This model allows **partial updates** — meaning the user doesn’t have to resend all fields.
+
+---
+
+### 🧩 Step 2: Write PUT Endpoint
+
+```python
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, task: TaskUpdate):
+    # Normally, you'd fetch task from DB and update it
+    return {"message": f"Task {task_id} updated", "data": task}
+```
+
+✅ What happens:
+
+* `task_id` comes from the URL
+* The request body provides new values
+* You return the updated result
+
+---
+
+💡 **Real-World Example:**
+In **Trello**, when you rename a card or mark it as complete,
+the app sends a PUT request to update that specific card.
+
+---
+
+### 🧾 Example Request
+
+```json
+PUT /tasks/2
+{
+  "completed": true
+}
+```
+
+### ✅ Example Response
+
+```json
+{
+  "message": "Task 2 updated",
+  "data": {
+    "completed": true
+  }
+}
+```
+
+---
+
+## 🔒 3. Data Validation
+
+### 🔹 Why Validation Is Important
+
+You should never trust data coming from the user —
+Pydantic automatically helps validate fields and enforce rules.
+
+---
+
+### 🧩 Example
+
+```python
+from pydantic import Field
+
+class Task(BaseModel):
+    title: str = Field(..., min_length=3, max_length=50)
+    completed: bool = False
+```
+
+If a user sends a title that’s too short or empty,
+FastAPI returns a **422 Unprocessable Entity** with details.
+
+---
+
+### 🧾 Example Error Response
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "title"],
+      "msg": "ensure this value has at least 3 characters",
+      "type": "value_error.any_str.min_length"
+    }
+  ]
+}
+```
+
+💡 **Real-World Example:**
+Just like Instagram doesn’t allow blank captions,
+FastAPI ensures your backend won’t accept invalid data.
+
+---
+
+## 🚨 4. Error Responses
+
+### 🔹 Using HTTPException
+
+FastAPI provides `HTTPException` for clean and structured error handling.
+
+---
+
+### 🧩 Example
+
+```python
+from fastapi import HTTPException
+
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
+    if task_id != 1:  # Simulating "not found"
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"task_id": task_id, "title": "Sample Task"}
+```
+
+✅ Returns a friendly message instead of crashing.
+
+---
+
+### 🧾 Example Response
+
+```json
+{
+  "detail": "Task not found"
+}
+```
+
+💡 **Real-World Example:**
+When you open a deleted YouTube video,
+you get a clear message “Video not found” instead of a blank page — that’s a controlled error response.
+
+---
+
+### 🔹 Common Error Codes
+
+| Code | Meaning      | Example                  |
+| ---- | ------------ | ------------------------ |
+| 400  | Bad Request  | Missing or invalid input |
+| 401  | Unauthorized | User not logged in       |
+| 404  | Not Found    | Task doesn’t exist       |
+| 409  | Conflict     | Duplicate entry          |
+| 500  | Server Error | Something unexpected     |
+
+---
+
+## 🧩 Full CRUD Example (Summary)
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Task(BaseModel):
+    title: str
+    description: str | None = None
+    completed: bool = False
+
+tasks = []
+
+@app.post("/tasks")
+def create_task(task: Task):
+    tasks.append(task)
+    return {"message": "Task created", "task": task}
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, task: Task):
+    if task_id >= len(tasks):
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks[task_id] = task
+    return {"message": "Task updated", "task": task}
+```
+
+✅ A complete working FastAPI CRUD example — easy to expand for databases later.
+
+---
+
+## 🧾 Summary
+
+| Concept         | Description          | Real-World Example       |
+| --------------- | -------------------- | ------------------------ |
+| POST Endpoint   | Create new data      | Add new task in Trello   |
+| PUT Endpoint    | Update existing data | Rename or mark complete  |
+| Data Validation | Check correctness    | Enforce form rules       |
+| Error Responses | Handle gracefully    | “Task not found” message |
+
+---
+
+## 💡 Final Thought
+
+CRUD is the backbone of every API — it’s where data is created, modified, and kept consistent.
+FastAPI makes this process **simple, fast, and safe** with its built-in validation and error handling.
+
+💬 “In modern APIs, reliability isn’t optional — validation makes it possible.”
+
+---
+
