@@ -5,7 +5,9 @@ import { notFound } from 'next/navigation'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { getMDXComponents } from '@/mdx-components'
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page'
-import { source } from '@/lib/source'
+import { getSource } from '@/lib/source';
+
+const source = getSource();
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>

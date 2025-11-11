@@ -87,14 +87,27 @@ await fs.mkdir(localDir, { recursive: true });
 // Save file locally
 await fs.writeFile(localFilePath, content, "utf-8");
 // ✅ Touch an existing file to trigger Next.js hot reload
+// ✅ Dynamically find an existing file to "touch" safely (trigger hot reload)
 try {
-  const touchPath = path.join(process.cwd(), "content", "docs", "0intro.mdx"); // or any existing file
-  const time = new Date();
-  await fs.utimes(touchPath, time, time);
-  console.log("✅ Triggered Next.js refresh by touching:", touchPath);
+  const docsDir = path.join(process.cwd(), "content", "docs");
+  const categories = await fs.readdir(docsDir);
+
+  if (categories.length > 0) {
+    const firstCategory = categories[0];
+    const categoryPath = path.join(docsDir, firstCategory);
+    const files = await fs.readdir(categoryPath);
+
+    if (files.length > 0) {
+      const touchPath = path.join(categoryPath, files[0]);
+      const time = new Date();
+      await fs.utimes(touchPath, time, time);
+      console.log("✅ Triggered Next.js refresh by touching:", touchPath);
+    }
+  }
 } catch (error: any) {
   console.warn("⚠️ Could not trigger rebuild automatically:", error?.message || error);
 }
+
 
 
 
