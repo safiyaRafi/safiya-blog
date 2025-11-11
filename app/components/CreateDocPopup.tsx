@@ -34,15 +34,8 @@ export default function CreateDocPopup() {
 
       setStatus({ type: "success", message: json?.message || "Created" });
 
-      // Wait a little for filesystem write, then refresh server data (App Router)
       setTimeout(() => {
-        // refresh server components / data fetches so sidebars that read lib/index.ts update
-        try {
-          router.refresh();
-        } catch (e) {
-          // fallback full reload only if router.refresh is not available (rare)
-          window.location.reload();
-        }
+        try { router.refresh(); } catch (e) { window.location.reload(); }
         setOpen(false);
       }, 600);
     } catch (err: any) {
@@ -53,61 +46,57 @@ export default function CreateDocPopup() {
   return (
     <>
       <button
-        onClick={() => {
-          setOpen(true);
-          setStatus({ type: "idle" });
-        }}
-        className="px-3 py-2 rounded bg-sky-600 text-white"
+        onClick={() => { setOpen(true); setStatus({ type: "idle" }); }}
+        className="btn-primary"
+        aria-haspopup="dialog"
       >
         + Create New Document
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-2xl bg-white rounded-lg p-6 shadow-lg">
-            <h3 className="text-lg font-semibold mb-3">Create New Document</h3>
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h3>Create New Document</h3>
 
-            <label className="block mb-2">
-              <div className="text-sm">Category</div>
+            <div className="field">
+              <label className="label">Category</label>
               <input
+                className="input"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="category folder (e.g. react-fastapi-integration)"
-                className="w-full border rounded p-2 mt-1"
               />
-            </label>
+            </div>
 
-            <label className="block mb-2">
-              <div className="text-sm">Title</div>
+            <div className="field">
+              <label className="label">Title</label>
               <input
+                className="input"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Document title"
-                className="w-full border rounded p-2 mt-1"
               />
-            </label>
+            </div>
 
-            <label className="block mb-4">
-              <div className="text-sm">Markdown</div>
+            <div className="field">
+              <label className="label">Markdown</label>
               <textarea
+                className="input"
                 value={markdown}
                 onChange={(e) => setMarkdown(e.target.value)}
                 rows={10}
-                className="w-full border rounded p-2 mt-1 font-mono"
               />
-            </label>
+            </div>
 
-            {status.type === "error" && <div className="text-sm text-red-600 mb-2">{status.message}</div>}
-            {status.type === "success" && <div className="text-sm text-green-600 mb-2">{status.message}</div>}
-            {status.type === "loading" && <div className="text-sm text-gray-700 mb-2">{status.message}</div>}
+            {status.type === "error" && <div className="status-error">{status.message}</div>}
+            {status.type === "success" && <div className="status-success">{status.message}</div>}
+            {status.type === "loading" && <div style={{color: 'var(--muted)'}}>{status.message}</div>}
 
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setOpen(false)} className="px-3 py-1 rounded border">
-                Cancel
-              </button>
+            <div className="modal-actions">
+              <button onClick={() => setOpen(false)} className="btn secondary">Cancel</button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1 rounded bg-green-600 text-white"
+                className="btn positive"
                 disabled={status.type === "loading"}
               >
                 Save
