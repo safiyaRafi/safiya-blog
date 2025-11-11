@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Octokit } from "octokit"; // ✅ Use existing octokit package, no install needed
-
+import { promises as fs } from "fs";
+import path from "path";
 // ---------- Utility: slugify title/category ----------
 function slugify(str = ""): string {
   return str
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
       {
         owner,
         repo,
-        path: "content",
+        path: "content/docs",
         ref: GITHUB_BRANCH,
       }
     );
@@ -74,6 +75,28 @@ export async function POST(req: Request) {
     // Add frontmatter + markdown
     const content = `---\ntitle: "${title}"\ncategory: "${category}"\n---\n\n${markdown}`;
     const encodedContent = Buffer.from(content).toString("base64");
+    // ✅ Write the file locally too (so you can see it instantly in VS Code)
+  
+
+const localDir = path.join(process.cwd(), "content", "docs", finalCategory);
+const localFilePath = path.join(localDir, `${normalizedTitle}.mdx`);
+
+// Make sure folder exists
+await fs.mkdir(localDir, { recursive: true });
+
+// Save file locally
+await fs.writeFile(localFilePath, content, "utf-8");
+// ✅ Touch an existing file to trigger Next.js hot reload
+try {
+  const touchPath = path.join(process.cwd(), "content", "docs", "0intro.mdx"); // or any existing file
+  const time = new Date();
+  await fs.utimes(touchPath, time, time);
+  console.log("✅ Triggered Next.js refresh by touching:", touchPath);
+} catch (error: any) {
+  console.warn("⚠️ Could not trigger rebuild automatically:", error?.message || error);
+}
+
+
 
     // Step 4️⃣ — Check if file exists to determine update vs create
     let sha: string | undefined;

@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+
+
 import { notFound } from 'next/navigation'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import { getMDXComponents } from '@/mdx-components'
