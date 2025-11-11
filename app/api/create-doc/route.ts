@@ -68,7 +68,8 @@ export async function POST(req: Request) {
       ? normalizedCategory
       : normalizedCategory;
 
-    const filePath = `content/${finalCategory}/${normalizedTitle}.mdx`;
+    const filePath = `content/docs/${finalCategory}/${normalizedTitle}.mdx`;
+
 
     // Add frontmatter + markdown
     const content = `---\ntitle: "${title}"\ncategory: "${category}"\n---\n\n${markdown}`;
