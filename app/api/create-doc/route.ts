@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Octokit } from "octokit";
+import { Octokit } from "octokit"; // ✅ Use existing octokit package, no install needed
 
 // ---------- Utility: slugify title/category ----------
 function slugify(str = ""): string {
@@ -44,7 +44,31 @@ export async function POST(req: Request) {
     // Step 3️⃣ — Prepare file details
     const cat = slugify(category);
     const slug = slugify(title);
-    const filePath = `content/docs/${cat}/${slug}/index.mdx`;
+    const normalizedCategory = slugify(category);
+    const normalizedTitle = slugify(title);
+
+    // ✅ FIXED: Use octokit.request instead of repos.getContent (no @octokit/rest required)
+    const repoContentsResp = await octokit.request(
+      "GET /repos/{owner}/{repo}/contents/{path}",
+      {
+        owner,
+        repo,
+        path: "content",
+        ref: GITHUB_BRANCH,
+      }
+    );
+
+    const repoContents = repoContentsResp.data;
+    const existingCategories = Array.isArray(repoContents)
+      ? repoContents.map((item: any) => item.name.toLowerCase())
+      : [];
+
+    // If category folder exists, use it; otherwise, create new one
+    const finalCategory = existingCategories.includes(normalizedCategory)
+      ? normalizedCategory
+      : normalizedCategory;
+
+    const filePath = `content/${finalCategory}/${normalizedTitle}.mdx`;
 
     // Add frontmatter + markdown
     const content = `---\ntitle: "${title}"\ncategory: "${category}"\n---\n\n${markdown}`;
@@ -65,7 +89,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // Step 5️⃣ — Create or update file via GitHub API
+    // Step 5️⃣ — Create or update file via GitHub API (unchanged)
     const commitMessage = sha
       ? `Update blog: ${cat}/${slug}`
       : `Add new blog: ${cat}/${slug}`;
